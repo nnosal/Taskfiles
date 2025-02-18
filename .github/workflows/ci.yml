@@ -21,7 +21,7 @@ jobs:
         run: |
           if [ ! -f "${{ github.workspace }}/Dockerfile" ]; then
             echo "🚫 No Dockerfile found, skipping CI."
-            echo "SKIP_CI=true" >> $GITHUB_ENV
+            exit 1
           fi
 
       - name: Install dependencies
