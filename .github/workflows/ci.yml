@@ -37,5 +37,5 @@ jobs:
           task docker_ci:build_push \
             SRC_DIR="${{ github.workspace }}" \
             REGISTRY="ghcr.io" \
-            REPOSITORY="${{ github.repository }}" \
+            REPOSITORY="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" \
             SRC="${{ github.workspace }}"
