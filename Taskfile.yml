@@ -1,0 +1,106 @@
+version: "3"
+
+################################################################################################
+#
+# ref:
+#   - https://taskfile.dev/#/usage
+# Project Template inspired from: github.com/better-sre
+#
+################################################################################################
+
+#
+# sub namespace: https://taskfile.dev/#/usage?id=including-other-taskfiles
+#
+includes:
+  os:
+    taskfile: ./Taskfile_{{OS}}.yml
+    dir: .
+
+  test:
+    taskfile: ./test.Taskfile.yml
+    dir: .
+
+  docker_ci:
+    taskfile: ./docker_ci.Taskfile.yml
+    dir: .
+
+  _docker:
+    aliases: [ 'dokr' ]
+    taskfile: ./docker/
+    dir: ./docker/
+    optional: true
+
+################################################################################################
+
+#
+# global vars: https://taskfile.dev/#/usage?id=variables
+#
+vars:
+  VAR1: "some-var"
+
+#
+# global env: https://taskfile.dev/#/usage?id=environment-variables
+#
+env:
+  ENV1: testing-env
+
+# env file:
+#dotenv:
+#  - .env
+
+################################################################################################
+
+# task groups:
+tasks:
+  default:
+    cmds:
+      - task: echo
+
+  download:
+    cmds:
+      - chmod +x init.sh
+      - ./init.sh
+
+  init:
+    cmds:
+      - cp .env.local .env
+
+  echo:
+    cmds:
+      - echo "hello world"
+
+  ################################################################################
+
+  pull:
+    aliases: [ "pl" ]
+    cmds:
+      - git config pull.rebase false
+      - git pull origin main
+
+  fetch:
+    aliases: [ "f" ]
+    cmds:
+      - git fetch
+      - git rebase
+      - git merge origin/main
+
+  quick:
+    aliases: [ "q" ]
+    cmds:
+      - task: commit
+      #- task: pull
+      - task: push
+
+  commit:
+    aliases: [ "c" ]
+    cmds:
+      - git add .
+      - |
+        git commit -m 'chore: update' --no-verify
+    ignore_error: true
+
+  push:
+    aliases: [ "p" ]
+    cmds:
+      - git push origin main --tags
+      - repo_url=`git remote -v | grep push | awk -F ":" '{print $2}' | awk -F ".git" '{print "https://github.com/"$1}'`; open $repo_url
