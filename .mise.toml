@@ -1,7 +1,0 @@
-[tools]
-task = "latest"
-
-[env]
-_.path = [
-    "{{ config_root }}/bin",
-]

@@ -1,0 +1,23 @@
+---
+version: '3' # https://taskfile.dev
+# Use: `task -t Taskfile.sample.yml --download -y && task -t Taskfile.sample.yml --list-all`
+
+vars:
+  tf_user_repo: "nnosal/Taskfiles"
+  tf_path: "Taskfile.yml" # "docker/ci.Taskfile.yml"
+
+env:
+  GITHUB_REPO: "https://raw.githubusercontent.com/{{.user_repo}}/refs/heads/main/{{.tf_path}}"
+
+includes:
+  _: { taskfile: "{{ .GITHUB_REPO }}", flatten: true }
+
+task: 
+    default: 
+        task: echo
+
+    # ADD MY OWN...
+    my_new_task:
+      cmd: echo HELLO WORLD !
+    my_new_task2:
+      cmds: ["echo 1", "echo 2", "echo 3", "echo GO!"]

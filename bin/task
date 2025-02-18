@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
-SCRIPT_DIR=$(dirname "$(realpath "$0")")
-${SCRIPT_DIR:-.}/mise x task -- task "$@"
+#set -eux
+
+SCRIPT_DIR=`dirname "$(realpath "$0")"`;
+command -v mise >/dev/null || MISE_BIN="$SCRIPT_DIR/mise"
+#command -v task >/dev/null || (mise use --env local task; TASK_BIN=`${MISE_BIN:-mise} which task`) # enable locally
+
+# Run "mise-en-task" ( a bootstrap for taskfile )
+${MISE_BIN:-mise} x task -- ${TASK_BIN:-task} "$@"

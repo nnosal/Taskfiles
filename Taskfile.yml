@@ -57,14 +57,17 @@ tasks:
     cmds:
       - task: echo
 
-  download:
-    cmds:
-      - chmod +x init.sh
-      - ./init.sh
+  #init:
+  #  cmds:
+  #    - cp .env.local .env
 
-  init:
+  test-sample:
+    description: From recipe repo -- test "Taskfile.sample.yml"
     cmds:
-      - cp .env.local .env
+      - task -t Taskfile.sample.yml --clear-cache
+      - task -t Taskfile.sample.yml --download -y
+      - task -t Taskfile.sample.yml --list-all
+      - task -t Taskfile.sample.yml # echo
 
   echo:
     cmds:

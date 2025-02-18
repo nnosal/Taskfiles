@@ -122,23 +122,23 @@ __mise_bootstrap() {
 
           # For current version use static checksum otherwise
           # use checksum from releases
-          if [ "$version" = "v2025.2.6" ]; then
-            checksum_linux_x86_64="9df4a29a0ab75a8b2cda81477015bd227758fdaa7bd8d8e8b4cb5732489d66b1  ./mise-v2025.2.6-linux-x64.tar.gz"
-            checksum_linux_x86_64_musl="a6e51b563b0277258e9ae88bbd1a830069e6e7f083ac15ef82e7ae308c18c12e  ./mise-v2025.2.6-linux-x64-musl.tar.gz"
-            checksum_linux_arm64="f1aaec49555f1ba7fecb88f7026aeec31f2be9e7b3a01c0cbcaf8b98463aa116  ./mise-v2025.2.6-linux-arm64.tar.gz"
-            checksum_linux_arm64_musl="08a97acf1211875bc982674ceaeadc58ec2c6e5796fe144e72cbbefcaddd4810  ./mise-v2025.2.6-linux-arm64-musl.tar.gz"
-            checksum_linux_armv7="0876226931bdf0dfe303b9f46a852843c35e4d5317d90d0befb21da82f90d72b  ./mise-v2025.2.6-linux-armv7.tar.gz"
-            checksum_linux_armv7_musl="f7dce9bd403428c0702f21deb42e5b6839a4a01a6b708f598974792d9d44b9bd  ./mise-v2025.2.6-linux-armv7-musl.tar.gz"
-            checksum_macos_x86_64="6c963de29c1b637ad768ccc3238424ff6a6bedda95d8de147fc6b07136431f17  ./mise-v2025.2.6-macos-x64.tar.gz"
-            checksum_macos_arm64="ccec565de14a7ee603950021f44a66610a506b5df34d718cdbb91a63eb3eebac  ./mise-v2025.2.6-macos-arm64.tar.gz"
-            checksum_linux_x86_64_zstd="4e7a3a159c9fa14e974ca53cff0fdd838643fd51bed19c0eff0b4e15a9a6606c  ./mise-v2025.2.6-linux-x64.tar.zst"
-            checksum_linux_x86_64_musl_zstd="0e1a7b0f0c5236bfcc2892f48ec2c4104a38914a79815f769067eb9197154592  ./mise-v2025.2.6-linux-x64-musl.tar.zst"
-            checksum_linux_arm64_zstd="d41b0f1820d4df83a3c09a5e69c073f1747e9c40bd60ec5485ee0ec77317df49  ./mise-v2025.2.6-linux-arm64.tar.zst"
-            checksum_linux_arm64_musl_zstd="1c2a2838458d94953b80367f746ee68ad8821a813c9a19827ba0be072c9552e0  ./mise-v2025.2.6-linux-arm64-musl.tar.zst"
-            checksum_linux_armv7_zstd="da040c8cede64cdff19a7427f832e35d1f2448f9ba9385a38f2a480b12342f5c  ./mise-v2025.2.6-linux-armv7.tar.zst"
-            checksum_linux_armv7_musl_zstd="fec42f5936a1cd5ef024ff9fc5f1efb5bfbef688bdb61d183a25e584bb6561ba  ./mise-v2025.2.6-linux-armv7-musl.tar.zst"
-            checksum_macos_x86_64_zstd="6444f5f39b93d2bdc49fbb6303f7f428636d32369880cc522fff75ff09e38c41  ./mise-v2025.2.6-macos-x64.tar.zst"
-            checksum_macos_arm64_zstd="f23c93cb2cfff6a5b3f780d2479ddd4c34cfd709d563128140103ba965595926  ./mise-v2025.2.6-macos-arm64.tar.zst"
+          if [ "$version" = "v2025.2.1" ]; then
+            checksum_linux_x86_64="4afebcbd8655399243f1783483a49c3267c15daa710a1817f9cfa89bbb92ee1c  ./mise-v2025.2.1-linux-x64.tar.gz"
+            checksum_linux_x86_64_musl="296b61f3f67ed8592fd4766bae703582c4e8f52aa40c1d84fb1752a9b865bf7c  ./mise-v2025.2.1-linux-x64-musl.tar.gz"
+            checksum_linux_arm64="5b0b18d896771bc8a9857624399226b511cb04ab8041664c70b9579f13572a09  ./mise-v2025.2.1-linux-arm64.tar.gz"
+            checksum_linux_arm64_musl="c1047572b04d3c1bf8d1c37c26d10472a594ae5e366da8638b0bb07d572e83fe  ./mise-v2025.2.1-linux-arm64-musl.tar.gz"
+            checksum_linux_armv7="ba33598536171301678f43e9fd956d13ee7e3b94ee69d89fb3fbcd05c3c0323a  ./mise-v2025.2.1-linux-armv7.tar.gz"
+            checksum_linux_armv7_musl="316df57aaac263c5ad841b621e2d5fdb0aebe2784e503a1f04659218b85f3757  ./mise-v2025.2.1-linux-armv7-musl.tar.gz"
+            checksum_macos_x86_64="188b3c6d1ae0dfca7ca4ac91c7c4fc0f2f388e761e7690d16bdc8407349d31ca  ./mise-v2025.2.1-macos-x64.tar.gz"
+            checksum_macos_arm64="e863c575855832b3f5906d3d4fd51add8d32dbb51b2720ce5472371111b9ae2e  ./mise-v2025.2.1-macos-arm64.tar.gz"
+            checksum_linux_x86_64_zstd="ef94e1ee3de92b88d82e3a663982df9f78a83fd8849e979d57fbc7ee4a49b2d4  ./mise-v2025.2.1-linux-x64.tar.zst"
+            checksum_linux_x86_64_musl_zstd="e7e6ed91c13208687e1d0ec53ec67195d77b1f333e02683b172212ab8d0775a3  ./mise-v2025.2.1-linux-x64-musl.tar.zst"
+            checksum_linux_arm64_zstd="f1d3bbb84db00c98b6bb064cf45ec88d73b949ab817f5e7f1d0fbcf1c8d4015d  ./mise-v2025.2.1-linux-arm64.tar.zst"
+            checksum_linux_arm64_musl_zstd="421840cee2b5338785a41768e25c642ec927316be2677eded552131343e006eb  ./mise-v2025.2.1-linux-arm64-musl.tar.zst"
+            checksum_linux_armv7_zstd="ab6aba52cf7a48bbecdf3512f17e49c5971f1c079ea92d021ed3fdbf407915a0  ./mise-v2025.2.1-linux-armv7.tar.zst"
+            checksum_linux_armv7_musl_zstd="6ca41e9f620339a3cd3cff9f2bed42c87c00db2c53fabdb6df504e73b286f9bf  ./mise-v2025.2.1-linux-armv7-musl.tar.zst"
+            checksum_macos_x86_64_zstd="5fcae29166e2215565aea10cbc6cd86ea9ec431feefe2ae20f3f27fa41f66b45  ./mise-v2025.2.1-macos-x64.tar.zst"
+            checksum_macos_arm64_zstd="56a6483ae61c5f3faf646463a565cac1ed4b93c30dd61f5cec628caf71509156  ./mise-v2025.2.1-macos-arm64.tar.zst"
 
             # TODO: refactor this, it's a bit messy
             if [ "$(get_ext)" = "tar.zst" ]; then
@@ -249,7 +249,7 @@ __mise_bootstrap() {
         }
 
         install_mise() {
-          version="${MISE_VERSION:-v2025.2.6}"
+          version="${MISE_VERSION:-v2025.2.1}"
           version="${version#v}"
           os="$(get_os)"
           arch="$(get_arch)"
