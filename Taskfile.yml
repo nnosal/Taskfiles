@@ -12,10 +12,6 @@ version: "3"
 # sub namespace: https://taskfile.dev/#/usage?id=including-other-taskfiles
 #
 includes:
-  os:
-    taskfile: ./Taskfile_{{OS}}.yml
-    dir: .
-
   test:
     taskfile: ./test.Taskfile.yml
     dir: .
@@ -28,6 +24,11 @@ includes:
     aliases: [ 'dokr' ]
     taskfile: ./docker/
     dir: ./docker/
+    optional: true
+
+  os:
+    taskfile: ./Taskfile_{{OS}}.yml
+    dir: .
     optional: true
 
 ################################################################################################
