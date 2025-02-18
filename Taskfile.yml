@@ -13,12 +13,12 @@ version: "3"
 #
 includes:
   test:
-    taskfile: ./test.Taskfile.yml
+    taskfile: ./common/test.Taskfile.yml
     dir: .
 
   docker_ci:
-    taskfile: ./docker_ci.Taskfile.yml
-    dir: .
+    taskfile: ./docker/ci.Taskfile.yml
+    dir: ./docker/
 
   #_docker:
   #  aliases: [ 'dokr' ]
