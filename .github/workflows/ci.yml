@@ -16,6 +16,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check for Dockerfile
+        id: check_dockerfile
+        run: |
+          if [ ! -f "${{ github.workspace }}/Dockerfile" ]; then
+            echo "🚫 No Dockerfile found, skipping CI."
+            exit 0
+          fi
+
       - name: Install dependencies
         run: |
           sudo apt-get update
