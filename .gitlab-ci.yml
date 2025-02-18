@@ -2,10 +2,13 @@ image: docker:27.0.3
 stages:
   - build
 before_script:
-  # Check for Dockerfile
   - if [ ! -f "$CI_PROJECT_DIR/Dockerfile" ]; then echo "🚫 No Dockerfile found, skipping build."; exit 0; fi
 build:
   stage: build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main"' # Build only if Dockerfile exist
+      exists:
+        - Dockerfile
   script:
     - apk add bash curl
     # Install the taskfile CLI
