@@ -3,14 +3,11 @@ version: '3' # https://taskfile.dev
 # Use: `task -t Taskfile.sample.yml --download -y && task -t Taskfile.sample.yml --list-all`
 
 vars:
-  tf_user_repo: "nnosal/Taskfiles"
-  tf_path: "Taskfile.yml" # "docker/ci.Taskfile.yml"
-
-env:
-  GITHUB_REPO: "https://raw.githubusercontent.com/{{.user_repo}}/refs/heads/main/{{.tf_path}}"
+  TASKFILE_REMOTE_NAME: "nnosal/Taskfiles"
+  TASKFILE_REMOTE_FILE: "Taskfile.yml" # "docker/ci.Taskfile.yml"
 
 includes:
-  _: { taskfile: "{{ .GITHUB_REPO }}", flatten: true }
+  _: { taskfile: "https://raw.githubusercontent.com/{{.TASKFILE_REMOTE_NAME}}/refs/heads/main/{{.TASKFILE_REMOTE_FILE}}", flatten: true }
 
 task: 
     default: 
