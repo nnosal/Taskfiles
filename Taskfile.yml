@@ -20,11 +20,16 @@ includes:
     taskfile: ./docker_ci.Taskfile.yml
     dir: .
 
-  _docker:
-    aliases: [ 'dokr' ]
-    taskfile: ./docker/
-    dir: ./docker/
-    optional: true
+  #_docker:
+  #  aliases: [ 'dokr' ]
+  #  taskfile: ./docker/
+  #  dir: ./docker/
+  #  optional: true
+    
+  #os:
+  #  taskfile: ./Taskfile_{{OS}}.yml
+  #  dir: .
+  #  optional: true
 
 ################################################################################################
 
