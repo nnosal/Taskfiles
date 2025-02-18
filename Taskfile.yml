@@ -26,10 +26,6 @@ includes:
     dir: ./docker/
     optional: true
 
-  os:
-    taskfile: ./Taskfile_{{OS}}.yml
-    optional: true
-
 ################################################################################################
 
 #
