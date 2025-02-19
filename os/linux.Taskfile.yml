@@ -1,6 +1,23 @@
 ---
 version: '3'
 
+includes:
+  macos:
+    taskfile: ./darwin.Taskfile.yml
+    dir: .
+    internal: true
+
 tasks:
   test-linux:
     cmd: echo "Hello Linux!"
+
+################################################################################################
+# _. FROM-MACOS
+################################################################################################
+
+  install:pkm:uv:
+    cmds:
+      - task: macos:install:pkm:uv
+  install:pkm:mise:
+    cmds:
+      - task: macos:install:pkm:mise
