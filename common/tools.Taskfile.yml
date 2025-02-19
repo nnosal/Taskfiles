@@ -1,0 +1,102 @@
+version: '3'
+
+################################################################################################
+#
+# ref:
+#   - https://taskfile.dev/#/styleguide
+#     - https://taskfile.dev/#/styleguide?id=use-the-correct-order-of-keywords
+#     - https://taskfile.dev/#/styleguide?id=use-colon-for-task-namespacing
+#
+################################################################################################
+
+
+tasks:
+  echo:
+    cmd: echo "hello world"
+
+  test-inline-file:
+    desc: "Test append file with lineinfile port."
+    cmds:
+    - task: lineinfile
+      vars: { PATH: './testfile.txt', LINE: 'APPEND LINE', CREATE: true }
+
+  lineinfile:
+    internal: true
+    desc: "Add, modify, or delete a line in a file with advanced options."
+    summary: |
+      A experimental port of the 'lineinfile' Ansible module
+      This task enables you to manage lines in a file with advanced options.
+      Such as creating backups before inserting lines, and performing conditional replacements.
+    requires: { vars: [ "PATH", "LINE" ] }
+    silent: true
+    vars:
+      PATH: "{{.PATH}}"
+      LINE: "{{.LINE}}"
+      STATE: "{{.STATE | default `present`}}"
+      REGEXP: "{{.REGEXP | default ``}}"
+      SEARCH_STRING: "{{.SEARCH_STRING | default ``}}"
+      INSERTAFTER: "{{.INSERTAFTER | default `EOF`}}"
+      INSERTBEFORE: "{{.INSERTBEFORE | default ``}}"
+      BACKREFS: "{{.BACKREFS | default false}}"
+      CREATE: "{{.CREATE | default false}}"
+      BACKUP: "{{.BACKUP | default false}}"
+      OWNER: "{{.OWNER | default ``}}"
+      GROUP: "{{.GROUP | default ``}}"
+      MODE: "{{.MODE | default ``}}"
+      VALIDATE: "{{.VALIDATE | default ``}}"
+    cmds:
+    - |
+      FILE="{{.PATH}}"
+
+      # Create the file if necessary
+      if [ ! -f "$FILE" ] && {{.CREATE}}; then
+        touch "$FILE"
+      elif [ ! -f "$FILE" ]; then
+        echo "Error: File $FILE does not exist and CREATE is false." >&2
+        exit 1
+      fi
+
+      # Backup the file if requested
+      if {{.BACKUP}}; then
+        cp "$FILE" "$FILE.bak_$(date +%Y%m%d%H%M%S)"
+      fi
+
+      # Remove the line if STATE=absent
+      if [ "{{.STATE}}" = "absent" ]; then
+        sed -i '/{{.REGEXP}}/d' "$FILE"
+        exit 0
+      fi
+
+      # Handle replacements with BACKREFS
+      if {{.BACKREFS}}; then
+        sed -Ei 's/{{.REGEXP}}/{{.LINE}}/' "$FILE"
+      elif [ -n "{{.REGEXP}}" ]; then
+        sed -i 's/{{.REGEXP}}/{{.LINE}}/' "$FILE"
+      elif [ -n "{{.SEARCH_STRING}}" ]; then
+        sed -i "/{{.SEARCH_STRING}}/c {{.LINE}}" "$FILE"
+      elif [ -n "{{.INSERTBEFORE}}" ]; then
+        sed -i '/{{.INSERTBEFORE}}/i {{.LINE}}' "$FILE"
+      elif [ "{{.INSERTAFTER}}" = "EOF" ]; then
+        echo "{{.LINE}}" >> "$FILE"
+      else
+        sed -i '/{{.INSERTAFTER}}/a {{.LINE}}' "$FILE"
+      fi
+
+      # Apply permissions if specified
+      if [ -n "{{.OWNER}}" ]; then chown {{.OWNER}} "$FILE"; fi
+      if [ -n "{{.GROUP}}" ]; then chgrp {{.GROUP}} "$FILE"; fi
+      if [ -n "{{.MODE}}" ]; then chmod {{.MODE}} "$FILE"; fi
+
+      # Validate if requested
+      if [ -n "{{.VALIDATE}}" ]; then
+        TEMP_FILE=$(mktemp)
+        cp "$FILE" "$TEMP_FILE"
+        if ! {{.VALIDATE}} "$TEMP_FILE"; then
+          echo "Error: Validation failed, changes not applied." >&2
+          rm "$TEMP_FILE"
+          exit 1
+        fi
+        rm "$TEMP_FILE"
+      fi
+
+################################################################################################
