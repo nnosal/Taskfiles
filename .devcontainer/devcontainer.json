@@ -1,0 +1,15 @@
+{
+  "name": "mise-en-task",
+  // 1. INSTALL WITH FEATURES
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": { 
+    "ghcr.io/devcontainers-extra/features/go-task:1": {}, 
+    "ghcr.io/devcontainers-extra/features/mise:1": {} 
+  }
+  // 2. OR INSTALL WITH SOURCES (compatible alpine)
+  //"image": "mcr.microsoft.com/devcontainers/base:alpine",
+  //"postCreateCommand": { "add-source-install": "echo 'source ${containerWorkspaceFolder}/.env' >> ~/.bashrc" },
+  // 3. ENABLE mount your desktop config
+  //"mounts": [ { "source": "mise-data-volume", "target": "/mnt/mise-data", "type": "volume" } ], 
+  //"container_env": { "MISE_DATA_VOLUME": "/mnt/mise-data" }
+}

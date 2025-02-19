@@ -1,0 +1,12 @@
+{
+	"recommendations": [
+        "task.vscode-task",                    // Task Runner pour gérer Taskfile
+        "hverlin.mise-vscode",                 // Task Runner pour gérer Mise (TOML)
+        "oderwat.indent-rainbow",              // Indent Helper
+        "AykutSarac.jsoncrack-vscode",         // JSON Helper
+        "kennylong.kubernetes-yaml-formatter", // YAML Helper
+        "hilleer.yaml-plus-json",              // JSON<->YAML Converter
+        "signageos.signageos-vscode-sops",     // Manage Secrets
+        "ms-azuretools.vscode-docker",         // Docker
+	]
+}

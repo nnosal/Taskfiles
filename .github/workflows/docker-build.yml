@@ -1,4 +1,4 @@
-name: CI
+name: DOCKER-BUILD-CI
 
 on:
   push:
