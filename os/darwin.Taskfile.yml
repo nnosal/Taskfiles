@@ -75,8 +75,8 @@ tasks:
         sh: basename $SHELL
     cmds:
       - curl https://mise.run | sh
-      - echo '# add mise-bootstrap' >> "~/.{{.SHELL_TYPE}}rc"
-      - echo 'eval "$(/opt/homebrew/bin/mise activate {{.SHELL_TYPE}} })"' >> "~/.{{.SHELL_TYPE}}rc"
+      - echo '# add mise-bootstrap' >> ~/.{{.SHELL_TYPE}}rc
+      - echo 'eval "$(`which mise` activate {{.SHELL_TYPE}} )"' >> ~/.{{.SHELL_TYPE}}rc
     status:
       - mise doctor || mise --version
 
