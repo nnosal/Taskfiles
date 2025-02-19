@@ -13,10 +13,10 @@ tasks:
   setup-pkm:
     desc: "FAST: Setup all package-manager."
     deps: 
-      - install-brew
-      - install-mise
-      - install-uv
-      - install-mas
+      - install:pkm:brew
+      - install:pkm:mise
+      - install:pkm:uv
+      - install:pkm:mas
     cmds: [echo "installed everything.."]
 
   setup-brew:
@@ -25,7 +25,9 @@ tasks:
       - task: install:brew:apps
         vars: 
           apps:
+            # #######
             # CLI
+            # #######
             - mise
             #- starship
             - jq # yq
@@ -47,11 +49,13 @@ tasks:
             #- kubescape/tap/kubescape-cli
             #- jesseduffield/lazydocker/lazydocker
             #- jesseduffield/lazygit/lazygit
+            # #######
             # CASK
+            # #######
             - raycast
             - visual-studio-code # code --version
             - orbstack # docker --version
-            - google-chrome
+            #- google-chrome
 
 ################################################################################################
 # 1. PACKAGE MANAGER (macOS)
@@ -86,8 +90,8 @@ tasks:
   install:pkm:mas:
     aliases: [mas]
     cmds:
-      - task: install-with-brew
-        vars: { package: 'mas' }
+      - task: install:brew:app
+        vars: { app: 'mas' }
 
 
 ################################################################################################
@@ -114,9 +118,9 @@ tasks:
     requires: { vars: [apps]}
     cmds:
       - for: { var: apps }
-        task: install-with-brew
+        task: install:brew:app
         vars:
-          package: '{{.ITEM}}'
+          app: '{{.ITEM}}'
 
   remove:brew:app:
     #internal: true
