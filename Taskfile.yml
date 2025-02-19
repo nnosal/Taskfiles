@@ -1,4 +1,5 @@
 version: "3"
+dotenv: ['.env']
 
 ################################################################################################
 #
@@ -26,10 +27,10 @@ includes:
   #  dir: ./docker/
   #  optional: true
     
-  #os:
-  #  taskfile: ./Taskfile_{{OS}}.yml
-  #  dir: .
-  #  optional: true
+  os:
+    taskfile: ./os/{{OS}}.Taskfile.yml
+    dir: .
+    optional: true
 
 ################################################################################################
 

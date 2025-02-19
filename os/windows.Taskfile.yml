@@ -1,0 +1,8 @@
+---
+version: '3'
+
+tasks:
+  test-windows:
+    cmds:
+      - powershell -Command "Write-Output 'Hello Windows!'"
+    platform: windows

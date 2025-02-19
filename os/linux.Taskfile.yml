@@ -1,0 +1,6 @@
+---
+version: '3'
+
+tasks:
+  test-linux:
+    cmd: echo "Hello Linux!"

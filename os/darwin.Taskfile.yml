@@ -1,0 +1,207 @@
+---
+version: '3'
+
+set: [pipefail]
+shopt: [globstar]
+
+tasks:
+
+################################################################################################
+# 0. FAST-SETUP
+################################################################################################
+
+  setup-pkm:
+    desc: "FAST: Setup all package-manager."
+    deps: 
+      - install-brew
+      - install-mise
+      - install-uv
+      - install-mas
+    cmds: [echo "installed everything.."]
+
+  setup-brew:
+    desc: "FAST: Setup brew with base apps."
+    cmds:
+      - task: install:brew:apps
+        vars: 
+          apps:
+            # CLI
+            - mise
+            #- starship
+            - jq # yq
+            - ripgrep # use: rg
+            #- lsd
+            #- goenv
+            #- uv
+            #- fd
+            - fzf
+            - bat
+            #- doggo
+            #- httpie
+            #- oha
+            - sops
+            - age
+            #- dive
+            #- btop
+            #- kubectx # use: kubectx -h; kubens -h
+            #- kubescape/tap/kubescape-cli
+            #- jesseduffield/lazydocker/lazydocker
+            #- jesseduffield/lazygit/lazygit
+            # CASK
+            - raycast
+            - visual-studio-code # code --version
+            - orbstack # docker --version
+            - google-chrome
+
+################################################################################################
+# 1. PACKAGE MANAGER (macOS)
+################################################################################################
+
+  install:pkm:brew:
+    aliases: [brew]
+    cmds:
+      - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    status:
+      - brew --version
+
+  install:pkm:mise:
+    aliases: [mise]
+    vars:
+      SHELL_TYPE:
+        sh: basename $SHELL
+    cmds:
+      - curl https://mise.run | sh
+      - echo '# add mise-bootstrap'' >> "~/.{{.SHELL_TYPE}rc"
+      - echo 'eval "$(/opt/homebrew/bin/mise activate {{.SHELL_TYPE} })"' >> "~/.{{.SHELL_TYPE}rc"
+    status:
+      - mise doctor || mise --version
+
+  install:pkm:uv:
+    aliases: [uv]
+    cmds:
+      - curl -LsSf https://astral.sh/uv/install.sh | sh
+    status:
+      - uv --version
+
+  install:pkm:mas:
+    aliases: [mas]
+    cmds:
+      - task: install-with-brew
+        vars: { package: 'mas' }
+
+
+################################################################################################
+# 2. INSTALL APPLICATIONS WITH BREW
+################################################################################################
+
+  install:brew:app:
+    #internal: true
+    aliases: [ib]
+    deps: [brew]
+    vars: 
+      IS_CASK: { sh: 'brew info --cask "{{.app}}" &>/dev/null && echo "--cask" || echo ""' }
+      GATEKEEPER: 0
+    requires: { vars: [app]}
+    cmds:
+      - brew install {{if eq .GATEKEEPER 0 }}--no-quarantine{{end}} {{.IS_CASK}} "{{.app}}"
+      # Always unquarantine this app (manual)
+      # - defer: test -z "{{.IS_CASK}}" || ( APP_NAME=$(brew info --cask --json=v2 '{{.app}}' | jq -r '.casks[0].artifacts[]|select(.app)|.app[]'); echo $APP_NAME; test -d "/Applications/$APP_NAME" && xattr -c "/Applications/$APP_NAME" )
+    status:
+      - brew list "{{.app}}" || brew list --cask "{{.app}}"
+
+  install:brew:apps:
+    aliases: [iba]
+    requires: { vars: [apps]}
+    cmds:
+      - for: { var: apps }
+        task: install-with-brew
+        vars:
+          package: '{{.ITEM}}'
+
+  remove:brew:app:
+    #internal: true
+    aliases: [rb]
+    deps: [brew]
+    requires: { vars: [app]}
+    cmd: brew remove {{.app}}
+    status:
+      - brew list "{{.app}}" && exit 1 || exit 0
+
+################################################################################################
+# 2. INSTALL APPLICATIONS (CUSTOM SETUP)
+################################################################################################
+
+  install:custom:neovim-nightly:
+    cmds:
+      - mkdir -p /opt/nvim
+      - curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz
+      - xattr -c ./nvim-macos-arm64.tar.gz
+      - tar xzvf nvim-macos-arm64.tar.gz -C /opt/nvim
+      - rm -f ./nvim-macos-arm64.tar.gz
+      - grep -qxF 'export PATH=/opt/nvim/bin:$PATH' $HOME/.bashrc || echo 'export PATH=/opt/nvim/bin:$PATH' >> $HOME/.bashrc
+    status:
+      - lsd --version
+
+  install:custom:fd:
+    cmds:
+      - task: install:brew:app
+        vars: { app: 'fd' }
+    status:
+      - fd --version
+
+  install:custom:fzf:
+    deps: [install:custom:fd]
+    cmds:
+      - task: install:brew:app
+        vars: { app: 'fzf' }
+      - grep -qxF 'eval "$(fzf --bash)"' $HOME/.bashrc || echo 'eval "$(fzf --bash)"' >> $HOME/.bashrc
+      - grep -qxF 'export FZF_DEFAULT_COMMAND="fd --no-ignore --hidden --exclude \'.git\' --exclude \'.venv\' --exclude node_modules --color=always"' $HOME/.bashrc || echo 'fd --no-ignore --hidden --exclude \'.git\' --exclude \'.venv\' --exclude node_modules --color=always"' >> $HOME/.bashrc
+      - grep -qxF 'export FZF_DEFAULT_OPTS="--ansi"' $HOME/.bashrc || echo 'export FZF_DEFAULT_OPTS="--ansi"' >> $HOME/.bashrc
+    status:
+      - fzf --version
+
+  install:custom:yazi:
+    aliases:
+      - duck
+      - yazi
+    cmds:
+      - echo "This one takes a few minutes..."
+      - task: install:brew:apps
+        vars: 
+          apps:
+            - yazi
+            - ffmpeg
+            - sevenzip
+            - poppler
+            - zoxide
+            - imagemagick
+            - font-symbols-only-nerd-font
+      - grep -qxF 'function y() {' $HOME/.bashrc || cat functions/yazi.sh >> $HOME/.bashrc
+      - |
+        if [ ! -e $HOME/.config/yazi/yazi.toml ]; then
+          cat ./configs/yazi.toml > $HOME/.config/yazi/yazi.toml
+        else
+          mkdir -p $HOME/.config/yazi
+          cat ./configs/yazi.toml > $HOME/.config/yazi/yazi.toml
+        fi
+    status:
+      - yazi --version
+
+  install:custom:posting:
+    deps:
+      - install:pkm:uv
+    cmds:
+      - uv tool install --python 3.12 posting
+    status:
+      - posting --version
+
+  install:custom:harlequin:
+    aliases:
+      - harlequin
+      - sql-ide
+    deps:
+      - install:pkm:uv
+    cmds:
+      - uv tool install 'harlequin[postgres,mysql,s3]'
+    status:
+      - harlequin --version
