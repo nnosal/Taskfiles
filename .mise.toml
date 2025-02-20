@@ -1,0 +1,10 @@
+[tools]
+task = "latest"
+
+[settings]
+experimental = true
+
+[env]
+TASK_X_REMOTE_TASKFILES=1
+# MORE DOWNLOAD API RATE?: https://github.com/settings/tokens/new?description=MISE_GITHUB_TOKEN
+#GITHUB_TOKEN="" 

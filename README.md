@@ -1,18 +1,10 @@
-# Taskfile
-
-Taskfile - test some cookbook.
+# Starter Project
 
 > This repo is under-heavy modification, not to use in production and at your own risk.
 
-## How-to
+## Setup Environment 
 
-This repo is for create new recipe. For debug it, you can:
-
-```bash
-source .env
-task --version
-# task --download -y && task test-sample
-```
-
-For use it simply add this sample `Taskfile.sample.yml` (+edit) as `Taskfile.yml` to your project.
-Don't forget to [install it](https://taskfile.dev/installation/) and enable experimental-mode: `export TASK_X_REMOTE_TASKFILES=1` or `echo "TASK_X_REMOTE_TASKFILES=1" >> .env`.
+1. Start easily with `source .env  && task --download -y && task`.
+2. 🎉 Good job ! You can use your project in sandbox mode.
+3. Want install globally ? `task install:pkm:mise && mise use task`
+   - 💡You can clean folder `.mise` on root of your project.

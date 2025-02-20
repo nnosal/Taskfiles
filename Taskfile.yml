@@ -1,92 +1,26 @@
-version: "3"
+---
+version: '3' # https://taskfile.dev
 dotenv: [ '.env' ]
-
 ################################################################################################
-#
-# ref:
-#   - https://taskfile.dev/#/usage
-# Project Template inspired from: github.com/better-sre
-#
-################################################################################################
-
-#
-# sub namespace: https://taskfile.dev/#/usage?id=including-other-taskfiles
-#
-includes:
-  tools:
-    taskfile: ./common/tools.Taskfile.yml
-    dir: .
-
-  python:
-    taskfile: ./common/python.Taskfile.yml
-    dir: .
-
-  git:
-    taskfile: ./common/git.Taskfile.yml
-    dir: .
-
-  docker_ci:
-    taskfile: ./docker/ci.Taskfile.yml
-    dir: ./docker/
-
-  docker:compose:
-    taskfile: ./docker/compose.Taskfile.yml
-    dir: ./docker/
-
-  docker:swarm:
-    taskfile: ./docker/swarm.Taskfile.yml
-    dir: ./docker/
-
-  #_docker:
-  #  aliases: [ 'dokr' ]
-  #  taskfile: ./docker/
-  #  dir: ./docker/
-  #  optional: true
-
-  os:
-    taskfile: ./os/{{OS}}.Taskfile.yml
-    dir: .
-    optional: true
-
-################################################################################################
-
-#
-# global vars: https://taskfile.dev/#/usage?id=variables
-#
 vars:
-  VAR1: "some-var"
+  TASKFILE_REMOTE_NAME: "nnosal/Taskfiles"
+  TASKFILE_REMOTE_FILE: "Taskfile.yml" # "docker/ci.Taskfile.yml"
+includes:
+  # Load main task-collection
+  _: { taskfile: "https://raw.githubusercontent.com/{{.TASKFILE_REMOTE_NAME}}/refs/heads/main/{{.TASKFILE_REMOTE_FILE}}", flatten: true }
+  # Exemple: other interesting project
+  _id:ansible: { taskfile: "https://raw.githubusercontent.com/megabyte-labs/install.doctor/refs/heads/master/.config/taskfiles/ansible/Taskfile.yml", optional: true }
+  _zlb:vault: { taskfile: "https://raw.githubusercontent.com/zloeber/taskfiles/refs/heads/main/tasks/Taskfile.vault.yml", optional: true }
+  _ffx:rclone: { taskfile: "https://raw.githubusercontent.com/frozenfoxx/taskfiles/refs/heads/main/rclone.tasks.yml", optional: true }
+  #_setola:ssl: { taskfile: "https://raw.githubusercontent.com/setola/task-files/refs/heads/main/ssl/Taskfile.yml", optional: true } # LINUX ONLY
+  ################################################################################################
 
-#
-# global env: https://taskfile.dev/#/usage?id=environment-variables
-#
-env:
-  ENV1: testing-env
-
-# env file:
-#dotenv:
-#  - .env
-
-################################################################################################
-
-# task groups:
-tasks:
+task:
   default:
-    cmds:
-    - task: echo
+    task: echo
 
-  #init:
-  #  cmds:
-  #    - cp .env.local .env
-
-  test-sample:
-    description: From recipe repo -- test "Taskfile.sample.yml"
-    cmds:
-    - task -t Taskfile.sample.yml --clear-cache
-    - task -t Taskfile.sample.yml --download -y
-    - task -t Taskfile.sample.yml --list-all
-    - task -t Taskfile.sample.yml # echo
-
-  echo:
-    cmds:
-    - echo "hello world"
-  ################################################################################
+  # ADD MY OWN...
+  my_new_task:
+    cmd: echo HELLO WORLD !
+  my_new_task2:
+    cmds: [ "echo 1", "echo 2", "echo 3", "echo GO!" ]
