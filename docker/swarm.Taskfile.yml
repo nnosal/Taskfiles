@@ -23,6 +23,9 @@ tasks:
     desc: "Clean stack (+volumes) with docker swarm (prod-mode)"
     requires: { vars: [ "SWARM_STACK_NAME" ] }
     cmds:
+    - task: down
+      vars:
+        SWARM_STACK_NAME: '{{.SWARM_STACK_NAME}}'
     - |
       volume_to_clean="$(docker volume ls -q -f "name={{.SWARM_STACK_NAME}}_" | xargs) $(docker volume ls -q -f "name=$(basename $(pwd))_" | xargs)"
       echo "Volumes to remove: $volume_to_clean"
