@@ -21,6 +21,10 @@ includes:
     taskfile: ./common/python.Taskfile.yml
     dir: .
 
+  git:
+    taskfile: ./common/git.Taskfile.yml
+    dir: .
+
   #_docker:
   #  aliases: [ 'dokr' ]
   #  taskfile: ./docker/

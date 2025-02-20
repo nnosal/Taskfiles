@@ -1,0 +1,37 @@
+---
+version: '3'
+
+tasks:
+  pull:
+    aliases: [ "pl" ]
+    cmds:
+    - git config pull.rebase false
+    - git pull origin main
+
+  fetch:
+    aliases: [ "f" ]
+    cmds:
+    - git fetch
+    - git rebase
+    - git merge origin/main
+
+  quick:
+    aliases: [ "q" ]
+    cmds:
+    - task: commit
+    #- task: pull
+    - task: push
+
+  commit:
+    aliases: [ "c" ]
+    cmds:
+    - git add .
+    - |
+      git commit -m 'chore: update' --no-verify
+    ignore_error: true
+
+  push:
+    aliases: [ "p" ]
+    cmds:
+    - git push origin main --tags
+    - repo_url=`git remote -v | grep push | awk -F ":" '{print $2}' | awk -F ".git" '{print "https://github.com/"$1}'`; open $repo_url
