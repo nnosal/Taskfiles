@@ -1,0 +1,43 @@
+---
+version: '3'
+
+tasks:
+  install:
+    cmd: "wget -nv -O - https://get.docker.com/ | sh"
+    status: [ docker ps || docker --version ]
+  ps:
+    aliases: [ ls ]
+    cmd: docker ps -al {{.args}} {{ if .search }}| grep "{{.search}}"{{end}}
+  pull:
+    cmd: docker pull {{.args}} {{.name}}
+    #preconditions:
+    #- sh: 'command -v timeout'
+    #  msg: 'Require: timeout for verification'
+    #- sh: 'timeout --preserve-status --signal=9 5s docker manifest inspect "{{.name}}" && exit 0 || exit 1'
+    #  msg: 'Image "{{.name}}" not exist on registry.'
+    requires: { vars: [ "name" ] }
+  run:
+    requires: { vars: [ "img" ] }
+    cmds:
+    - docker run {{ if .name }}--name "{{.name}}"{{end}} {{ if not .notmp }}--rm{{end}} {{.img}}
+    #- defer: { task: rmi, vars: { name: '{{.img}}' } }
+  rm:
+    cmd: docker rm {{.args}} {{.idn}}
+    requires: { vars: [ "idn" ] }
+    status: [ '! docker ps -al | grep {{.idn}}' ]
+  start:
+    cmd: docker start {{.args}} {{.idn}}
+    requires: { vars: [ "idn" ] }
+    status: [ 'test -n $(docker ps -a --format json | grep "{{.idn}}" | jq -r .State | grep exited) && exit 1 || exit 0' ]
+  stop:
+    cmd: docker stop {{.args}} {{.idn}}
+    requires: { vars: [ "idn" ] }
+    status: [ 'test -z $(docker ps -a --format json | grep "{{.idn}}" | jq -r .State | grep exited) && exit 1 || exit 0' ]
+  rmi:
+    cmd: docker rmi {{.args}} {{.name}}
+    preconditions:
+    - sh: 'jq --version'
+      msg: 'Require: jq for verification'
+    - sh: 'test -z $(docker images --format json | grep "{{.name}}" | jq .Repository) && exit 1 || exit 0'
+      msg: 'Image "{{.name}}" not exist (anymore).'
+    requires: { vars: [ "name" ] }

@@ -28,6 +28,7 @@ tasks:
         # #######
         # CLI
         # #######
+        - coreutils
         - mise
         #- starship
         - jq # yq
@@ -77,7 +78,8 @@ tasks:
     - curl https://mise.run | sh
     - echo '# add mise-bootstrap' >> ~/.{{.SHELL_TYPE}}rc
     - echo 'eval "$(`which mise` activate {{.SHELL_TYPE}} )"' >> ~/.{{.SHELL_TYPE}}rc
-    - eval "$(`which mise` activate {{.SHELL_TYPE}} )"
+    - source ~/.{{.SHELL_TYPE}}rc
+    - echo "~/.{{.SHELL_TYPE}}rc"
     status:
     - mise doctor || mise --version
 

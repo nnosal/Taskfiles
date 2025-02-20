@@ -29,6 +29,10 @@ includes:
     taskfile: ./docker/ci.Taskfile.yml
     dir: ./docker/
 
+  docker:
+    taskfile: ./docker/docker.Taskfile.yml
+    dir: ./docker/
+
   docker:compose:
     taskfile: ./docker/compose.Taskfile.yml
     dir: ./docker/
