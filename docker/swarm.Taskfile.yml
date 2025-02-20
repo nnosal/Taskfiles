@@ -1,0 +1,30 @@
+---
+version: '3'
+
+tasks:
+  # INTERNAL:START
+  swarm:
+    internal: true
+    requires: { vars: [ "SWARM_ACTION" ] }
+    cmd: "docker stack {{.SWARM_ACTION}}"
+  # INTERNAL:END
+  # SWARM:START
+  up:
+    desc: "Up/Update stack with docker swarm (prod-mode)"
+    preconditions:
+    - sh: 'test -f "{{.SWARM_FILE}}"'
+      msg: 'Required file "{{.SWARM_FILE}}" not exist.'
+    requires: { vars: [ "SWARM_FILE", "SWARM_STACK_NAME" ] }
+    cmd: { task: swarm, vars: { SWARM_ACTION: 'deploy -c {{.SWARM_FILE}} {{.SWARM_STACK_NAME}}' } }
+  down:
+    desc: "Down stack with docker swarm (prod-mode)"
+    cmd: { task: swarm, vars: { SWARM_ACTION: 'rm {{.SWARM_STACK_NAME}}' } }
+  clean:
+    desc: "Clean stack (+volumes) with docker swarm (prod-mode)"
+    requires: { vars: [ "SWARM_STACK_NAME" ] }
+    cmds:
+    - |
+      volume_to_clean="$(docker volume ls -q -f "name={{.SWARM_STACK_NAME}}_" | xargs) $(docker volume ls -q -f "name=$(basename $(pwd))_" | xargs)"
+      echo "Volumes to remove: $volume_to_clean"
+      [ ! -z "$volume_to_clean" ] && docker volume rm $volume_to_clean
+  # SWARM:END

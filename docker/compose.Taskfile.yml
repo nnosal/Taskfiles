@@ -1,0 +1,33 @@
+---
+version: '3'
+
+tasks:
+  # INTERNAL:START
+  compose:
+    internal: true
+    preconditions: [ { sh: 'test -f "{{.COMPOSE_FILE}}"', msg: 'Required file "{{.COMPOSE_FILE}}" not exist.' } ]
+    cmd: 'docker-compose {{if .project_name}}-p "{{.project_name}}"{{end}} -f "{{.COMPOSE_FILE}}" {{.COMPOSE_ACTION}}'
+  # INTERNAL:END
+  # COMPOSE:START
+  build:
+    desc: "Build with compose"
+    env: { COMPOSE_DOCKER_CLI_BUILD: 1, DOCKER_BUILDKIT: 1 }
+    requires: { vars: [ "COMPOSE_FILE" ] }
+    cmd: { task: compose, vars: {COMPOSE_ACTION: 'build {{if .nocache}}--no-cache{{end}} {{if .service_name}}{{.service_name}}{{end}}', COMPOSE_FILE: '{{.COMPOSE_FILE}}', project_name: '{{.project_name}}' } }
+  up:
+    desc: "Up stack with compose (dev-mode)"
+    requires: { vars: [ "COMPOSE_FILE" ] }
+    cmd: { task: compose, vars: {COMPOSE_ACTION: 'up', COMPOSE_FILE: '{{.COMPOSE_FILE}}'} }
+  upd:
+    desc: "Up stack with compose (dev-mode) (detached)"
+    requires: { vars: [ "COMPOSE_FILE" ] }
+    cmd: { task: compose, vars: {COMPOSE_ACTION: 'up -d', COMPOSE_FILE: '{{.COMPOSE_FILE}}'} }
+  down:
+    desc: "Down stack with compose (dev-mode)"
+    requires: { vars: [ "COMPOSE_FILE" ] }
+    cmd: { task: compose, vars: {COMPOSE_ACTION: 'down', COMPOSE_FILE: '{{.COMPOSE_FILE}}'} }
+  clean:
+    desc: "Down (+clean volumes) stack with compose (dev-mode)"
+    requires: { vars: [ "COMPOSE_FILE" ] }
+    cmd: { task: compose, vars: {COMPOSE_ACTION: 'down --volumes', COMPOSE_FILE: '{{.COMPOSE_FILE}}'} }
+  # COMPOSE:END

@@ -25,6 +25,18 @@ includes:
     taskfile: ./common/git.Taskfile.yml
     dir: .
 
+  docker_ci:
+    taskfile: ./docker/ci.Taskfile.yml
+    dir: ./docker/
+
+  docker:compose:
+    taskfile: ./docker/compose.Taskfile.yml
+    dir: ./docker/
+
+  docker:swarm:
+    taskfile: ./docker/swarm.Taskfile.yml
+    dir: ./docker/
+
   #_docker:
   #  aliases: [ 'dokr' ]
   #  taskfile: ./docker/
