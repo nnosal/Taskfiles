@@ -19,7 +19,7 @@ task --version
 ### Quick-Start
 
 ```bash
-git clone -b use https://github.com/nnosal/Taskfiles mysuperproject
+git clone --depth 1 -b use https://github.com/nnosal/Taskfiles mysuperproject
 ```
 
 ### Manually
