@@ -2,6 +2,12 @@
 version: '3'
 
 tasks:
+  status:
+    aliases: [ "pl" ]
+    cmds:
+    - git status
+    - git remote -v
+
   pull:
     aliases: [ "pl" ]
     cmds:
@@ -15,20 +21,30 @@ tasks:
     - git rebase
     - git merge origin/main
 
-  quick:
-    aliases: [ "q" ]
-    cmds:
-    - task: commit
-    #- task: pull
-    - task: push
-
-  commit:
-    aliases: [ "c" ]
+  commit-generic:
+    aliases: [ "c!" ]
     cmds:
     - git add .
     - |
       git commit -m 'chore: update' --no-verify
     ignore_error: true
+
+  quick:
+    aliases: [ "q" ]
+    cmds:
+    - task: commit-generic
+    #- task: pull
+    - task: push
+
+  commit:
+    aliases: [ "c" ]
+    desc: "Helper for commit+push on app (amend+force: fix=1 msg=)"
+    requires: { vars: [ msg ] }
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+    - git add .
+    - git commit {{if .fix}}--amend{{else}}-m "{{.msg}}"{{end}}
+    - git push {{if .fix}}-f{{end}}
 
   push:
     aliases: [ "p" ]

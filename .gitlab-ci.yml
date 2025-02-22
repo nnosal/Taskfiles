@@ -1,22 +1,22 @@
 image: docker:27.0.3
 stages:
-  - build
+- build
 before_script:
-  - if [ ! -f "$CI_PROJECT_DIR/Dockerfile" ]; then echo "🚫 No Dockerfile found, skipping build."; exit 0; fi
+- if [ ! -f "$CI_PROJECT_DIR/Dockerfile" ]; then echo "🚫 No Dockerfile found, skipping build."; exit 0; fi
 build:
   stage: build
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"' # Build only if Dockerfile exist
-      exists:
-        - Dockerfile
+  - if: '$CI_COMMIT_REF_NAME == "main"' # Build only if Dockerfile exist
+    exists:
+    - Dockerfile
   script:
-    - apk add bash curl
-    # Install the taskfile CLI
-    #- sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-    - source .env && task --version
-    # Set the environment variable to download the remote taskfile
-    - export TASK_X_REMOTE_TASKFILES=1
-    # Download the remote taskfile
-    - task --download -y
-    # Run the task to build and push the Docker image
-    - task docker_ci:build_push SRC_DIR=$CI_PROJECT_DIR REGISTRY=$CI_REGISTRY REPOSITORY=$CI_PROJECT_PATH_LOWER SRC=$CI_PROJECT_DIR
+  - apk add bash curl
+  # Install the taskfile CLI
+  #- sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+  - source .env && task --version
+  # Set the environment variable to download the remote taskfile
+  - export TASK_X_REMOTE_TASKFILES=1
+  # Download the remote taskfile
+  - task --download -y
+  # Run the task to build and push the Docker image
+  - task docker:ci:build_push SRC_DIR=$CI_PROJECT_DIR REGISTRY=$CI_REGISTRY REPOSITORY=$CI_PROJECT_PATH_LOWER SRC=$CI_PROJECT_DIR

@@ -1,15 +1,33 @@
 ---
 version: '3'
 
+#vars: 
+#  DOCKER_DEFAULT_PLATFORM: linux/amd64 # M1
+
+################################################################################################
+# MAIN TASKS
+################################################################################################
+
 tasks:
   install:
+    desc: Install Docker
     cmd: "wget -nv -O - https://get.docker.com/ | sh"
     status: [ docker ps || docker --version ]
+  buildx:
+    desc: "Buildx a Dockerfile (tag=,file=,platform=,src_path=)"
+    env: { BUILDKIT_NO_CACHE: '{{ if .nocache }}1{{else}}0{{end}}', DOCKER_BUILDKIT: 1 }
+    cmd: |
+      docker buildx build {{ if .tag }}-t "{{.tag}}" \ {{end}}
+      {{ if .file }}-f "{{.file}}" \ {{end}}
+      {{ if .platform }}--platform={{.platform}} \ {{end}}
+      {{ if .src_path }}.{{else}}{{.src_path}}{{end}}
   ps:
+    desc: "List current containers (filter: search=)"
     aliases: [ ls ]
-    cmd: docker ps -al {{.args}} {{ if .search }}| grep "{{.search}}"{{end}}
+    cmd: docker ps -al {{.__}} {{ if .search }}| grep "{{.search}}"{{end}}
   pull:
-    cmd: docker pull {{.args}} {{.name}}
+    desc: Download a docker img=
+    cmd: docker pull {{.__}} {{.name}}
     #preconditions:
     #- sh: 'command -v timeout'
     #  msg: 'Require: timeout for verification'
@@ -17,24 +35,29 @@ tasks:
     #  msg: 'Image "{{.name}}" not exist on registry.'
     requires: { vars: [ "name" ] }
   run:
+    desc: Run container with docker img=
     requires: { vars: [ "img" ] }
     cmds:
     - docker run {{ if .name }}--name "{{.name}}"{{end}} {{ if not .notmp }}--rm{{end}} {{.img}}
     #- defer: { task: rmi, vars: { name: '{{.img}}' } }
   rm:
-    cmd: docker rm {{.args}} {{.idn}}
+    desc: Delete container with docker idn=
+    cmd: docker rm {{.__}} {{.idn}}
     requires: { vars: [ "idn" ] }
     status: [ '! docker ps -al | grep {{.idn}}' ]
   start:
-    cmd: docker start {{.args}} {{.idn}}
+    desc: Start container with docker idn=
+    cmd: docker start {{.__}} {{.idn}}
     requires: { vars: [ "idn" ] }
     status: [ 'test -n $(docker ps -a --format json | grep "{{.idn}}" | jq -r .State | grep exited) && exit 1 || exit 0' ]
   stop:
-    cmd: docker stop {{.args}} {{.idn}}
+    desc: Stop container with docker idn=
+    cmd: docker stop {{.__}} {{.idn}}
     requires: { vars: [ "idn" ] }
     status: [ 'test -z $(docker ps -a --format json | grep "{{.idn}}" | jq -r .State | grep exited) && exit 1 || exit 0' ]
   rmi:
-    cmd: docker rmi {{.args}} {{.name}}
+    desc: Delete docker img=
+    cmd: docker rmi {{.__}} {{.name}}
     preconditions:
     - sh: 'jq --version'
       msg: 'Require: jq for verification'

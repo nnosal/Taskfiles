@@ -11,7 +11,7 @@ includes:
 
 tasks:
   default:
-    task: echo
+    task: list
 
   # ADD MY OWN...
   my_new_task:

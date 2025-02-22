@@ -15,12 +15,12 @@ tasks:
     - sh: 'test -f "{{.SWARM_FILE}}"'
       msg: 'Required file "{{.SWARM_FILE}}" not exist.'
     requires: { vars: [ "SWARM_FILE", "SWARM_STACK_NAME" ] }
-    cmd: { task: swarm, vars: { SWARM_ACTION: 'deploy -c {{.SWARM_FILE}} {{.SWARM_STACK_NAME}}' } }
+    cmd: { task: swarm, vars: { SWARM_ACTION: 'deploy {{.__}} -c {{.SWARM_FILE}} {{.SWARM_STACK_NAME}}' } }
   down:
     desc: "Down stack with docker swarm (prod-mode)"
-    cmd: { task: swarm, vars: { SWARM_ACTION: 'rm {{.SWARM_STACK_NAME}}' } }
+    cmd: { task: swarm, vars: { SWARM_ACTION: 'rm {{.__}} {{.SWARM_STACK_NAME}}' } }
   clean:
-    desc: "Clean stack (+volumes) with docker swarm (prod-mode)"
+    desc: "Clean stack volumes with docker swarm (prod-mode)"
     requires: { vars: [ "SWARM_STACK_NAME" ] }
     cmds:
     - task: down

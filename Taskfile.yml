@@ -25,27 +25,18 @@ includes:
     taskfile: ./common/git.Taskfile.yml
     dir: .
 
-  docker_ci:
-    taskfile: ./docker/ci.Taskfile.yml
-    dir: ./docker/
-
   docker:
-    taskfile: ./docker/docker.Taskfile.yml
-    dir: ./docker/
-
+    aliases: [ 'dkr' ]
+    taskfile: ./docker/Taskfile.yml
+    #optional: true
+  docker:ci:
+    taskfile: docker/ci.Taskfile.yml
   docker:compose:
-    taskfile: ./docker/compose.Taskfile.yml
-    dir: ./docker/
-
+    aliases: [ 'dkc' ]
+    taskfile: docker/compose.Taskfile.yml
   docker:swarm:
-    taskfile: ./docker/swarm.Taskfile.yml
-    dir: ./docker/
-
-  #_docker:
-  #  aliases: [ 'dokr' ]
-  #  taskfile: ./docker/
-  #  dir: ./docker/
-  #  optional: true
+    aliases: [ 'dks' ]
+    taskfile: docker/swarm.Taskfile.yml
 
   os:
     taskfile: ./os/{{OS}}.Taskfile.yml
@@ -78,13 +69,30 @@ tasks:
   #  cmds:
   #    - cp .env.local .env
 
+  list:
+    desc: List all tasks with fuzzy-search (fzf)
+    silent: true
+    preconditions:
+    - sh: 'jq --version'
+      msg: 'Require: jq for verification'
+    - sh: 'fzf --version'
+      msg: 'Require: fzf for lazy-search'
+    cmd: tasks=$(task -aj | jq -r '.tasks[].name' | fzf --layout reverse --header='CTRL-c or ESC to quit' --preview="task -lj | jq -r '.tasks[] | select(.name == \"{}\")'" --preview-label='[Task details]'); test $tasks && task $tasks || echo >/dev/null
+
+  run-internal:
+    desc: "Execute some internal task: task run -- db:down"
+    cmd:
+      task: "{{.CLI_ARGS}}"
+    requires:
+      vars: [ CLI_ARGS ]
+
   test-sample:
     description: From recipe repo -- test "Taskfile.sample.yml"
     cmds:
     - task -t Taskfile.sample.yml --clear-cache
     - task -t Taskfile.sample.yml --download -y
     - task -t Taskfile.sample.yml --list-all
-    - task -t Taskfile.sample.yml # echo
+    - task -t Taskfile.sample.yml list # echo
 
   echo:
     cmds:
