@@ -15,10 +15,7 @@ includes:
   #_setola:ssl: { taskfile: "https://raw.githubusercontent.com/setola/task-files/refs/heads/main/ssl/Taskfile.yml", optional: true } # LINUX ONLY
   ################################################################################################
 
-task:
-  default:
-    task: echo
-
+tasks:
   # ADD MY OWN...
   my_new_task:
     cmd: echo HELLO WORLD !
