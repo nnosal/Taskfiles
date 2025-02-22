@@ -74,10 +74,6 @@ env:
 
 # task groups:
 tasks:
-  default:
-    cmds:
-    - task: echo
-
   #init:
   #  cmds:
   #    - cp .env.local .env
