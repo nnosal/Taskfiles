@@ -25,6 +25,10 @@ includes:
     taskfile: ./common/git.Taskfile.yml
     dir: .
 
+  pulumi:
+    taskfile: ./common/pulumi.Taskfile.yml
+    dir: .
+
   docker:
     aliases: [ 'dkr' ]
     taskfile: ./docker/Taskfile.yml
