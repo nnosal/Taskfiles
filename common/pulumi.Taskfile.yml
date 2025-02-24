@@ -1,33 +1,45 @@
 ---
 version: '3'
 
+defaults: &defaults
+  dir: "{{.dir | default .USER_WORKING_DIR}}"
+
 tasks:
   logout:
     desc: Logout Pulumi (specify dir if needed)
     cmd: pulumi logout
+    <<: *defaults
   login:
     desc: 'Login Pulumi (more args: __=)'
     cmd: pulumi login {{.__}}
+    <<: *defaults
   login:s3:
     desc: 'Login Pulumi (more args: bucket-name=, endpoint-name=, insecure=, compat=)'
     requires: { vars: [ bucket-name, endpoint-name, insecure, compat ] }
     cmd: { task: login, vars: { __: 's3://{{.bucket-name}}?endpoint={{.endpoint-name | default "my.minio.local:8080"}}&disableSSL={{.insecure}}&s3ForcePathStyle={{.compat}}' } }
+    <<: *defaults
   login:file:
     desc: 'Login Pulumi (more args: path=)'
     cmd: { task: login, vars: { __: 'file://{{.path | default "."}}' } }
+    <<: *defaults
   stack:
     desc: 'Manage Pulumi Stack (more args: __=)'
     cmd: pulumi stack {{.__}}
+    <<: *defaults
   up:
     desc: Pulumi up stack (specify dir if needed)
     cmd: pulumi up {{.__}}
+    <<: *defaults
   down:
     desc: Pulumi down stack (specify dir if needed)
     cmd: pulumi down {{.__}}
+    <<: *defaults
   config:add:
     desc: Pulumi set/update config (key= value=)
     requires: { vars: [ key, value ] }
     cmd: pulumi config set {{if .secret}}--secret{{end}} {{if .plaintext}}--plaintext{{end}} {{.key}} {{.value}}
+    <<: *defaults
   config:rm:
     desc: Pulumi remove config (key="key1 key2")
     cmd: pulumi config rm-all {{.keys}}
+    <<: *defaults
