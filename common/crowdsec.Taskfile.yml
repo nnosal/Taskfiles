@@ -1,0 +1,53 @@
+---
+version: '3'
+
+tasks:
+  install:
+    desc: "Install crowdsec (modern drop-in for fail2ban)"
+    cmds:
+    # Add repo
+    - curl -s https://install.crowdsec.net | sh
+    # Add core + bouncer
+    - apt install -y crowdsec crowdsec-firewall-bouncer-iptables
+    - systemctl enable --now crowdsec
+    #- cscli collections install crowdsecurity/sshd
+    status: [systemctl is-active crowdsec]
+  add-collection:
+    desc: "Add a jail-pack"
+    requires: { vars: [ name ] }
+    cmd: cscli collections install {{.name}}
+    status: [cscli collections list -o raw | grep -i && exit 1 || exit 0]
+  join-console:
+    desc: "Add your server to web-console (app.crowdsec.net/security-engines)"
+    requires: { vars: [ id, name ] }
+    cmd: cscli console enroll {{if .name}}--name {{.name}}{{end}} -e context "{{.id}}"
+    status: [test "$(cscli console status -o json | jq -r '.context != null')" = "true" && exit 0 || exit 1]
+  check:
+    desc: "Check what is currently banned"
+    cmd: cscli alerts list && cscli decisions list
+  whatenabled:
+    desc: "Check what configuration is currently enabled"
+    cmds:
+      - echo " --- 1. Collections Pack :"
+      - cscli collections list
+      - echo " --- 2. All scenarios (feed by Parsers) :"
+      - cscli scenarios list && cscli parsers list
+      - echo " --- 3. Overall metrics :"
+      - cscli metrics
+  banip:
+    desc: "Ban an IP"
+    requires: { vars: [ ip, duration ] }
+    cmd: cscli decisions add --ip {{.ip}} --duration {{.duration}}
+  unbanip:
+    desc: "Unban an IP"
+    requires: { vars: [ ip ] }
+    cmd: cscli decisions delete --ip {{.ip}}
+  update:
+    desc: "Force to update-all crowdsec"
+    requires: { vars: [ ip ] }
+    cmds: 
+      - apt update && sudo apt install --only-upgrade crowdsec -y
+      - cscli hub update
+      - cscli collections upgrade -all
+      - cscli scenarios upgrade --all
+      - systemctl restart crowdsec
