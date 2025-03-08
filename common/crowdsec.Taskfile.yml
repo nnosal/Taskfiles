@@ -1,5 +1,6 @@
 ---
 version: '3'
+# Learn by doing: https://killercoda.com/iiamloz/
 
 tasks:
   install:
@@ -9,7 +10,24 @@ tasks:
     - curl -s https://install.crowdsec.net | sh
     # Add core + bouncer
     - apt install -y crowdsec crowdsec-firewall-bouncer-iptables
+    - | 
+      cat <<EOF > /etc/crowdsec/config.yaml.local
+      ---
+      db_config:
+        use_wal: true # to enable for sqlite (default) except if shared sqlite
+      EOF
     - systemctl enable --now crowdsec
+    - |
+      echo "SETUP: Autocomplete..."
+      if [[ "$SHELL" =~ "zsh" ]]; then 
+        echo "autoload -U compinit; compinit" >> ~/.zshrc && cscli completion zsh | tee "${fpath[1]}/_cscli" && exec zsh
+      elif [[ "$SHELL" =~ "bash" ]]; then 
+        cscli completion bash | sudo tee /etc/bash_completion.d/cscli && source ~/.bashrc
+      elif [[ "$SHELL" =~ "fish" ]]; then 
+        cscli completion fish | tee ~/.config/fish/completions/cscli.fish && exec fish
+      else 
+        echo "Autcomplete not compatible with: $SHELL"
+      fi
     #- cscli collections install crowdsecurity/sshd
     status: [systemctl is-active crowdsec]
   add-collection:
@@ -24,7 +42,7 @@ tasks:
     status: [test "$(cscli console status -o json | jq -r '.context != null')" = "true" && exit 0 || exit 1]
   check:
     desc: "Check what is currently banned"
-    cmd: cscli alerts list && cscli decisions list
+    cmd: cscli alerts list && cscli decisions list --all
   whatenabled:
     desc: "Check what configuration is currently enabled"
     cmds:
@@ -35,19 +53,36 @@ tasks:
       - echo " --- 3. Overall metrics :"
       - cscli metrics
   banip:
-    desc: "Ban an IP"
-    requires: { vars: [ ip, duration ] }
-    cmd: cscli decisions add --ip {{.ip}} --duration {{.duration}}
+    desc: "Ban a single IP"
+    requires: { vars: [ ip ] } # ip="1.2.3.4" # duration=24h # type=captcha # reason="web bruteforce"
+    cmd: cscli decisions add --ip {{.ip}} {{if .duration}}--duration {{.duration}}{{end}} {{if .type}}--type {{.type}}{{end}}  {{if .reason}}--reason "{{.reason}}"{{end}}
+  baniprange:
+    desc: "Ban an IP (range)"
+    requires: { vars: [ iprange ] } #range="1.2.3.0/24" # type=captcha # duration=24h # reason="web bruteforce"
+    cmd: cscli decisions add --range {{.iprange}} {{if .duration}}--duration {{.duration}}{{end}} {{if .type}}--type {{.type}}{{end}}  {{if .reason}}--reason "{{.reason}}"{{end}}
   unbanip:
     desc: "Unban an IP"
     requires: { vars: [ ip ] }
     cmd: cscli decisions delete --ip {{.ip}}
+  unbaniprange:
+    desc: "Unban an IP range"
+    requires: { vars: [ iprange ] }
+    cmd: cscli decisions delete --range {{.iprange}}
+  unbanall:
+    desc: "Unban all IP"
+    requires: { vars: [ iprange ] }
+    cmd: cscli decisions delete --all
   update:
     desc: "Force to update-all crowdsec"
     requires: { vars: [ ip ] }
     cmds: 
       - apt update && sudo apt install --only-upgrade crowdsec -y
+      - /usr/share/crowdsec/wizard.sh -c # re-analyse what kind collection could be detected to install
       - cscli hub update
       - cscli collections upgrade -all
       - cscli scenarios upgrade --all
       - systemctl restart crowdsec
+  analyse-logfile:
+    desc: "Cold-Forensic: Replay/Analyse an existing log file"
+    requires: { vars: [ fullpath_file, type ] } # type=nginx
+    cmd: crowdsec -dsn file://{{.fullpath_file}} --type {{.type}} -no-api
