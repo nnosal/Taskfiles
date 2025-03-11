@@ -9,6 +9,11 @@ version: '3'
 #
 ################################################################################################
 
+vars:
+  CURRENT_DATE: { sh: date +%Y-%m-%d_%H-%M-%S }
+  CURRENT_REPO: { sh: "git remote -v | awk '{print $2}' | head -n 1 | cut -d'/' -f3-" }
+  REPO_NAME: { sh: "basename -s .git {{.CURRENT_REPO}}"}
+  DEFAULT_NOTIFY: "ntfy.sh/wsenotif-{{.REPO_NAME}}"
 
 tasks:
   echo:
@@ -98,5 +103,82 @@ tasks:
         fi
         rm "$TEMP_FILE"
       fi
+
+  ssh:name:
+    desc: "SSH an HOST"
+    preconditions: 
+      - sh: 'command -v timeout'
+        msg: 'Require: timeout for verification'
+      - timeout 10 ssh {{.name}} 'exit'
+    requires: { vars: [ name, cmd ] }
+    cmd: |
+        ssh {{.name}} '
+        {{if .path}} cd {{.path}} && {{end}}
+        {{.cmd}}
+        '
+
+  ssh:cmd:
+    desc: "SSH an HOST"
+    preconditions: 
+      - sh: 'command -v timeout'
+        msg: 'Require: timeout for verification'
+      - timeout 10 ssh {{.name}} 'exit'
+    requires: { vars: [ name, cmd ] }
+    cmd: |
+        ssh {{.name}} '
+        {{if .path}} cd {{.path}} && {{end}}
+        {{.cmd}}
+        '
+  notify:
+    internal: true
+    requires: { vars: [ MSG ] } # TO=
+    vars:
+      DEST_NOTIFY: "{{.TO | default .DEFAULT_NOTIFY}}"
+    cmds: 
+     - curl -k -d "{{.CURRENT_DATE}} - {{.MSG}} DONE." https://{{.DEST_NOTIFY}}
+     - echo "Notification sent to {{.DEST_NOTIFY}}."
+
+  rsync:
+    internal: true
+    requires: { vars: [SRC, DEST] }
+    preconditions: 
+      - sh: 'command -v ssh'
+        msg: 'Require: ssh for connect'
+      - sh: 'command -v rsync'
+        msg: 'Require: rsync for update files'
+      #- sh: test -e {{.SRC}} || (ssh "{{.SRC}}" 'exit' && echo OK)
+      #  msg: 'SRC not valid'
+      #- sh: test -e {{.DEST}} || (ssh "{{.DEST}}" 'exit' && echo OK)
+      #  msg: 'DEST not valid'
+    vars:
+      EXCLUDE_ARGS:         '{{range .EXCLUDES}}--exclude=\"{{.}}\" {{end}}'
+      RELATIVE_BUPDIR_ARGS: '{{if .RELATIVE_BUPDIR}}--delete --backup --backup-dir="{{.RELATIVE_BUPDIR}}" {{end}}'
+      #SRC_IS_SSH: "{{if hasPrefix \"ssh\" .SRC}}OK{{else}}NOK{{end}}"
+      EXTRA_ARGS: '{{.EXTRA_ARGS | default "" }}'
+    cmds:
+      - |
+        # CHECK.. If path are ok (test ssh too)
+        SSH_ARGS=$(for location in "{{.SRC}}" "{{.DEST}}"; do if ! test -e "$location"; then if ssh "${location%%:*}" 'exit' 2>/dev/null; then echo "-e ssh"; else echo "Fail: $location is invalid" >&2; exit 1; fi; fi; done)
+        echo $SSH_ARGS
+      #- echo "Are you sure?" && read CONTINUE
+      - | 
+        # RUN RSYNC..
+        rsync -avz -P {{.EXTRA_ARGS}} \
+        {{.RELATIVE_BUPDIR_ARGS}} \
+        {{.EXCLUDE_ARGS}} \
+        ${SSH_ARGS} {{.SRC}} {{.DEST}}
+
+  rsync:backup:
+    desc: "Sync 2 folders with incremental-backup"
+    requires: { vars: [SRC, DEST] }
+    cmds: 
+      - task: rsync
+        vars: 
+          SRC: '{{.SRC}}/' # "SRC:PATH/"
+          DEST: '{{.DEST}}/' # "DEST:PATH/"
+          RELATIVE_BUPDIR: '../.previous/{{ .CURRENT_DATE }}/'
+          EXCLUDES: '{{.EXCLUDES | default [] }}' #[ "data/*" ]
+          EXTRA_ARGS: '{{.EXTRA_ARGS | default "" }}'
+      - task: notify
 
 ################################################################################################
