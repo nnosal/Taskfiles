@@ -104,19 +104,6 @@ tasks:
         rm "$TEMP_FILE"
       fi
 
-  ssh:name:
-    desc: "SSH an HOST"
-    preconditions: 
-      - sh: 'command -v timeout'
-        msg: 'Require: timeout for verification'
-      - timeout 10 ssh {{.name}} 'exit'
-    requires: { vars: [ name, cmd ] }
-    cmd: |
-        ssh {{.name}} '
-        {{if .path}} cd {{.path}} && {{end}}
-        {{.cmd}}
-        '
-
   ssh:cmd:
     desc: "SSH an HOST"
     preconditions: 
@@ -129,6 +116,7 @@ tasks:
         {{if .path}} cd {{.path}} && {{end}}
         {{.cmd}}
         '
+
   notify:
     internal: true
     requires: { vars: [ MSG ] } # TO=
