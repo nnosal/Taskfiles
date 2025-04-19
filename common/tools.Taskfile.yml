@@ -12,7 +12,7 @@ version: '3'
 vars:
   CURRENT_DATE: { sh: date +%Y-%m-%d_%H-%M-%S }
   CURRENT_REPO: { sh: "test -d .git && (git remote -v | awk '{print $2}' | head -n 1 | cut -d'/' -f3-) || echo ''" }
-  REPO_NAME: { sh: "test -d .git && (basename -s .git {{.CURRENT_REPO}}) || echo ''"}
+  REPO_NAME: { sh: "test -d .git && (basename -s .git {{.CURRENT_REPO}}) || echo ''" }
   DEFAULT_NOTIFY: "ntfy.sh/wsenotif-{{.REPO_NAME}}"
 
 tasks:
