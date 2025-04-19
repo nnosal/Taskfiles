@@ -105,7 +105,7 @@ tasks:
       fi
 
   ssh:cmd:
-    desc: "SSH an HOST"
+    desc: "SSH an HOST and execute a command"
     preconditions: 
       - sh: 'command -v timeout'
         msg: 'Require: timeout for verification'
@@ -116,6 +116,20 @@ tasks:
         {{if .path}} cd {{.path}} && {{end}}
         {{.cmd}}
         '
+  ssh2:
+    desc: Fuzzy-select an SSH Profile
+    silent: true
+    preconditions:
+    - sh: 'gum --version'
+      msg: 'Require: gum for interactive prompts'
+    cmd: |
+      CONFIG_FILES=(~/.ssh/config $(grep -h '^Include ' ~/.ssh/config | sed -E 's|^Include ||' | while read -r path; do eval echo "$path"; done))
+      PROFILES=$(awk '/^Host / {for (i=2; i<=NF; i++) print $i}' "${CONFIG_FILES[@]}")
+      SELECTED_PROFILE=$(echo "$PROFILES" | gum filter --placeholder "Sélectionnez un profil SSH...")
+      gum confirm --affirmative "Oui" --negative "Non" --default=true \
+        "Souhaitez-vous vous connecter à $SELECTED_PROFILE ?" \
+        && ( gum style --border double --width 50 --align center --padding "1 1" --foreground 2 --bold "Connexion SSH à : $SELECTED_PROFILE" ; \
+        ssh "$SELECTED_PROFILE" && gum style --foreground 2 "Connexion \"$SELECTED_PROFILE\" terminé.") || gum style --foreground 1 "Connexion annulée."
 
   notify:
     internal: true
