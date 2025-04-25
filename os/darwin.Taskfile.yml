@@ -7,6 +7,27 @@ shopt: [ globstar ]
 tasks:
 
   ################################################################################################
+  # TOOLS
+  ################################################################################################
+    openurloop:
+      desc: Open URL in loop (BASE_URL= START= END=)
+      silent: true
+      preconditions:
+        - sh: command -v open >/dev/null
+          msg: 'Require: open (mac) for open urls'
+      vars:
+        BASE_URL: '{{.BASE_URL | default "https://blog.hootsuite.com/channel/strategy/page/"}}'
+        START: '{{.START | default "1"}}'
+        END: '{{.END | default "38"}}'
+      cmd: |
+          for i in $(seq {{.START}} {{.END}}); do
+            url="{{.BASE_URL}}$i"
+            echo "Ouverture de : $url"
+            open "$url"
+            read -p "Appuyez sur Entrée pour CONTINUER..."
+          done
+
+  ################################################################################################
   # 0. FAST-SETUP
   ################################################################################################
 
